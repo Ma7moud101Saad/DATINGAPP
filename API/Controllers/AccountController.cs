@@ -23,7 +23,7 @@ namespace API.Controllers
             _tokenService = tokenService;
         }
         [HttpPost("register")]
-        public async Task<ActionResult<AppUser>> Register(RegisterDto registerDto)
+        public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
             if (await UserExists(registerDto.UserName)) return BadRequest("User name Already Exist");
             using var hmac = new HMACSHA512();
@@ -35,7 +35,11 @@ namespace API.Controllers
             };
             await _dbContext.Users.AddAsync(user);
             await _dbContext.SaveChangesAsync();
-            return user;
+          
+            return new UserDto {
+                UserName=user.UserName,
+                Token= _tokenService.CreateToken(user)
+            };
 
         }
 
