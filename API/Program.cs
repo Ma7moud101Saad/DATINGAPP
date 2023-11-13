@@ -8,7 +8,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Writers;
 using System;
 using System.Text;
 
@@ -41,5 +43,17 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using var scope=app.Services.CreateScope();
+var service = scope.ServiceProvider;
+try {
+    var context = service.GetRequiredService<DataContext>();
+    await context.Database.MigrateAsync();
+    await Seed.SeedUsers(context);
+
+}catch (Exception ex) {
+    var logger = service.GetService<ILogger<Program>>();
+    logger.LogError(ex,"An Error Occured During migration");
+}
 
 app.Run();
