@@ -30,17 +30,17 @@
 </div>
 
 <div class="col-8">
-    <tabset class="member-tabset" >
-        <tab heading="About {{member?.knownAs}}" id="tab1">
+    <tabset class="member-tabset" *ngIf="member" >
+        <tab heading="About {{member.knownAs}}" id="tab1">
             <h4>Description</h4>
-            <p>{{member?.introduction}}</p>
+            <p>{{member.introduction}}</p>
 
             <h4>Looking for</h4>
-            <p>{{member?.lookingFor}}</p>
+            <p>{{member.lookingFor}}</p>
         </tab>
         <tab heading="Interstes">
             <h4>Interstes</h4>
-            <p>{{member?.interstes}}</p>
+            <p>{{member.interstes}}</p>
         </tab>
         <tab heading="Photos">
             <h4>Photos</h4>

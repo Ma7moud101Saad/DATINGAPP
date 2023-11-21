@@ -1,0 +1,82 @@
+<div class="row"  *ngIf="member">
+    <div class="col-4">
+      <h1>your profile</h1>  
+    </div>
+    <div class="col-8">
+        <div class="alert alert-info pb-0" *ngIf="editForm.dirty">
+            <p><strong>Information:</strong> you have made changes. any unsaved changes will be lost</p>
+            </div>
+    </div>
+    <div class="col-4">
+        <div class="card">
+            <img src="{{member.photoUrl || './assets/user.png'}}" alt="{{member.knownAs}}" 
+            class="card-img-top img-thumbnail">
+      
+        <div class="card-body p-1">
+            <strong>Location: </strong>
+            <p>{{member.city}},{{member.country}}</p>
+    
+            <strong>Age: </strong>
+            <p>{{member.age}}</p>
+    
+            <strong>Last Active: </strong>
+            <p>{{member.lastActive}}</p>
+    
+            <strong>member science: </strong>
+            <p>{{member.created}}</p>
+        </div>
+
+        <div class="card-footer">
+            <div class="btn-group d-flex">
+                <button [disabled]="!editForm.dirty" form="editProfile" class="btn btn-success">Save changes</button>
+            </div>
+        </div>
+    
+    </div>
+</div>
+
+<div class="col-8">
+    <tabset class="member-tabset" >
+      
+            <tab heading="About {{member.knownAs}}" id="tab1">
+                <form id="editProfile" #editForm="ngForm" (ngSubmit)="editProfile()">
+                <h4>Description</h4>
+                <textarea class="form-control"
+                 id="introduction"
+                  [(ngModel)]="member.introduction"
+                 name="introduction"
+                  rows="6">
+                </textarea>
+                
+                <h4>Looking for</h4>
+                <textarea class="form-control"
+                 id="lookingFor"
+                 [(ngModel)]="member.lookingFor" 
+                 name="lookingFor" rows="6"></textarea>
+    
+                 <h4>interstes</h4>
+                 <textarea class="form-control"
+                  id="interstes"
+                  [(ngModel)]="member.interstes" 
+                  name="interstes" rows="6"></textarea>
+    
+                  <h4>Location details</h4>
+                  <div class="d-flex flex-row align-items-center">
+                    <label for="city">city</label>
+                    <input id="city" type="text" class="form-control mx-2" [(ngModel)]="member.city" name="city">
+    
+                    <label for="country">country</label>
+                    <input id="country" type="text" class="form-control" [(ngModel)]="member.country" name="country">
+                  </div>
+                </form>
+            </tab>
+      
+     
+        <tab heading="Photos">
+            <h4>Photos</h4>
+            <p>Edit Photo</p>
+       </tab>
+      </tabset>
+</div>
+
+</div>
