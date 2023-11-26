@@ -1,6 +1,7 @@
 ﻿using API.Data;
 using API.DTOs;
 using API.Entites;
+using API.Extensions;
 using API.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -20,12 +21,15 @@ namespace API.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
+        private readonly IphotoService _photoService;
 
         public UsersController(IUserRepository userRepository,
-            IMapper mapper)
+            IMapper mapper,
+            IphotoService photoService)
         {
             _userRepository = userRepository;
             _mapper = mapper;
+            _photoService = photoService;
         }
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers() { 
@@ -39,13 +43,30 @@ namespace API.Controllers
         }
         [HttpPut]
         public async Task<ActionResult> UpdateUser(MemberUpdateDto memberUpdateDto) {
-           var userName= User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var user =await _userRepository.GetUserByNameAsync(userName);
+            var user =await _userRepository.GetUserByNameAsync(User.GetUserName());
             if (user == null) return NotFound();
             _mapper.Map(memberUpdateDto, user);
            if(await _userRepository.SaveAllAsync()) return NoContent();
             return BadRequest();
         }
-        
+        [HttpPost("add-photo")]
+        public async Task<ActionResult> AddPhoto(IFormFile file) {
+          var user = await _userRepository.GetUserByNameAsync(User.GetUserName());
+            if (user == null) return NotFound();
+            var uploadResult= await _photoService.UploadPhotoAsync(file);
+            Photo photo = new Photo()
+            {
+                Url = uploadResult.SecureUrl.AbsoluteUri,
+                PublicId = uploadResult.PublicId
+            };
+            if(user.Photos.Count ==0)photo.IsMain = true;
+            user.Photos.Add(photo);
+
+            if (await _userRepository.SaveAllAsync()) {
+                return CreatedAtAction(nameof(GetUser),new { userName = user.UserName }, _mapper.Map<PhotoDto>( photo));
+            }
+
+            return BadRequest();
+        }
     }
 }
