@@ -21,8 +21,7 @@ export class AccountService {
     map((respose:User)=>{
       const user=respose;
       if(user != null){
-        localStorage.setItem("user",JSON.stringify(user));
-        this.currentUserSource.next(user);
+        this.serCurrentUser(user);
       }
     })
    );
@@ -33,8 +32,7 @@ export class AccountService {
      map((respose:User)=>{
        const user=respose;
        if(user != null){
-         localStorage.setItem("user",JSON.stringify(user));
-         this.currentUserSource.next(user);
+        this.serCurrentUser(user);
        }
      })
     );
@@ -46,6 +44,7 @@ export class AccountService {
   }
 
   serCurrentUser(user:User){
+    localStorage.setItem("user",JSON.stringify(user));
     this.currentUserSource.next(user);
   }
 

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -50,7 +51,9 @@ namespace API.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<UserDto>> Login(LoginDto loginDto) {
 
-           var user= await _dbContext.Users.SingleOrDefaultAsync(x => x.UserName == loginDto.UserName);
+           var user= await _dbContext.Users
+                .Include(x=>x.Photos)
+                .SingleOrDefaultAsync(x => x.UserName == loginDto.UserName);
 
             if (user == null) return Unauthorized("User Does not exist");
 
@@ -61,7 +64,11 @@ namespace API.Controllers
             for (int i = 0; i < computedHash.Length; i++) {
                 if (user.PasswordHash[i] != computedHash[i]) return Unauthorized("Invalid password");
             }
-            return new UserDto {UserName=user.UserName,Token= _tokenService.CreateToken(user) };
+            return new UserDto {
+                UserName=user.UserName,
+                Token= _tokenService.CreateToken(user),
+                PhotoUrl = user.Photos.FirstOrDefault(x => x.IsMain)?.Url
+            };
         }
     }
 }

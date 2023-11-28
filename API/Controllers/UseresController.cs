@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,6 +68,47 @@ namespace API.Controllers
             }
 
             return BadRequest();
+        }
+
+        [HttpPut("set-main-photo/{photoId}")]
+        public async Task<ActionResult> SetMainPhoto(int photoId) { 
+
+           var user= await _userRepository.GetUserByNameAsync(User.GetUserName());
+           if (user == null) return NotFound();
+
+           var photo= user.Photos.FirstOrDefault(x => x.Id == photoId);
+           if (photo == null) return NotFound();
+
+            var currentMain = user.Photos.FirstOrDefault(x => x.IsMain);
+
+           if(currentMain!= null) currentMain.IsMain = false;
+
+            if (photo.IsMain) return BadRequest("this photo is already main");
+
+            photo.IsMain = true;
+
+            if (await _userRepository.SaveAllAsync()) return NoContent();
+
+            return BadRequest();
+        }
+
+        [HttpDelete("delete-photo/{photoId}")]
+        public async Task<ActionResult> DeletePhoto(int photoId) {
+            var user = await _userRepository.GetUserByNameAsync(User.GetUserName());
+
+            var photo=user.Photos.FirstOrDefault(x=>x.Id== photoId);
+            if (photo == null) return NotFound();
+
+            if(photo.IsMain) return BadRequest("You can not delete the main photo");
+
+            if (photo.PublicId != null) {
+             var result= await _photoService.DeletePhotoAsync(photo.PublicId);
+                if (result.Error != null) return BadRequest(result.Error.Message);
+            }
+            user.Photos.Remove(photo);
+            if(await _userRepository.SaveAllAsync())return NoContent();
+
+            return BadRequest("problem delting a photo");
         }
     }
 }
