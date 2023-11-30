@@ -1,4 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AccountService } from 'src/_services/account.service';
 
 @Component({
@@ -9,18 +11,66 @@ import { AccountService } from 'src/_services/account.service';
 export class RegisterComponent implements OnInit {
   model:any={};
   @Output() cancelRegister=new EventEmitter();
-  constructor(private accountService:AccountService) { }
+  registerForm:FormGroup=new FormGroup({});
+  maxdate:Date=new Date();
+  validationErrors:string[]|undefined;
+  constructor(private accountService:AccountService,
+    private formBuilder:FormBuilder,
+    private router:Router) {
+    this.maxdate?.setFullYear(this.maxdate.getFullYear()-18);
+   }
 
   ngOnInit(): void {
+    this.initializeForm();
   }
 
   register(){
-  this.accountService.register(this.model).subscribe({
-    next:()=>{this.cancel()},
-    error:error=>{console.log(error)}
-  })
+    let dob=this.getDateOnly(this.registerForm.controls['dateOfBirth'].value);
+    const value={...this.registerForm.value,dateOfBirth:dob};
+    this.accountService.register(value).subscribe({
+      next:()=>{
+        this.router.navigateByUrl("/members")
+      },
+      error:error=>{
+        this.validationErrors=error;
+      }
+    })
   }
   cancel(){
     this.cancelRegister.emit(false);
+  }
+
+  initializeForm(){
+    this.registerForm=this.formBuilder.group({
+      userName:['',Validators.required],
+      gender:['',Validators.required],
+      knownAs:['',Validators.required],
+      dateOfBirth:['',Validators.required],
+      city:['',Validators.required],
+      country:['',Validators.required],
+      password:['',[Validators.required,Validators.minLength(4), Validators.maxLength(8)]],
+      confirmPassword:['',[Validators.required,this.matchValues("password")]]
+    });
+    this.registerForm.controls["password"].valueChanges.subscribe({
+      next:()=>this.registerForm.controls["confirmPassword"].updateValueAndValidity()
+    })
+  }
+
+  matchValues(matchTo:string):ValidatorFn{
+    return(control:AbstractControl)=>{
+      return control.value === control.parent?.get(matchTo)?.value?null:{noMatching:true}
+    }
+  } 
+
+  hasError = (controlName: string, errorName: string) => {
+		return this.registerForm.controls[controlName].hasError(errorName);
+	}
+
+  getDateOnly(dob:string){
+    if(!dob)
+    return
+    let theDob=new Date(dob);
+    return new Date(theDob.setMinutes(theDob.getMinutes()-theDob.getTimezoneOffset())).toISOString().slice(0,10);
+    
   }
 }

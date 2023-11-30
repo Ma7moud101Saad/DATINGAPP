@@ -1,26 +1,30 @@
-<form #registerForm="ngForm" (ngSubmit)="register()" autocomplete="off">
+<form [formGroup]="registerForm" (ngSubmit)="register()" autocomplete="off">
     <h1 class="text-center text-primary">Sign Up</h1>
     <hr>
     <div class="mb-3">
-        <input
-        class="form-control"
-         type="text"
-        name="userName"
-        [(ngModel)]="model.userName"
-        placeholder="User Name">
+        <label style="margin-right: 10px;">I am a:</label>
+        <label class="form-check-label">
+            <input type="radio" class="form-check-input" formControlName="gender" value="male"> Male
+        </label>
+        <label class="form-check-label">
+             <input type="radio" class="form-check-input ms-3" formControlName="gender" value="female"> Female
+        </label>
     </div>
-
-    <div class="mb-3">
-        <input
-        class="form-control"
-         type="password"
-        name="password"
-        [(ngModel)]="model.password"
-        placeholder="Password">
-    </div>
+    <app-text-input [formControl]="$any(registerForm.controls['userName'])" [label]="'User name'"></app-text-input>
+    <app-text-input [formControl]="$any(registerForm.controls['knownAs'])" [label]="'known As'"></app-text-input>
+    <app-date-picker [formControl]="$any(registerForm.controls['dateOfBirth'])" [label]="'Date of birth'" [maxdate]="maxdate"> </app-date-picker>
+    <app-text-input [formControl]="$any(registerForm.controls['city'])" [label]="'city'"></app-text-input>
+    <app-text-input [formControl]="$any(registerForm.controls['country'])" [label]="'country'"></app-text-input>
+    <app-text-input [formControl]="$any(registerForm.controls['password'])" [label]="'password'" [type]="'password'"></app-text-input>
+    <app-text-input [formControl]="$any(registerForm.controls['confirmPassword'])" [type]="'password'" [label]="'confirmation Password'"></app-text-input>
 
     <div class="text-center">
         <button class="btn btn-success" >Register</button>
         <button class="btn btn-default" type="button" (click)="cancel()" >Cancel</button>
     </div>
 </form>
+<div class="row">
+    <ul class="text-danger">
+        <li *ngFor="let error of validationErrors">{{error}}</li>
+    </ul>
+</div>
