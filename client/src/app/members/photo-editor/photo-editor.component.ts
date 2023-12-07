@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FileUploader } from 'ng2-file-upload';
 import { take } from 'rxjs';
-import { User } from 'src/_models/User';
+import { User } from 'src/_models/user';
 import { Member } from 'src/_models/member';
 import { Photo } from 'src/_models/photo';
 import { AccountService } from 'src/_services/account.service';

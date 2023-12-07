@@ -2,10 +2,11 @@ import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { pipe, take } from 'rxjs';
-import { User } from 'src/_models/User';
+import { User } from 'src/_models/user';
 import { Member } from 'src/_models/member';
 import { AccountService } from 'src/_services/account.service';
 import { MemberService } from 'src/_services/member.service';
+import { UserParams } from 'src/_models/userParams';
 
 @Component({
   selector: 'app-member-edit',
@@ -14,23 +15,7 @@ import { MemberService } from 'src/_services/member.service';
 })
 export class MemberEditComponent implements OnInit {
   user:User |null=null;
-  member: Member={
-    id: 0,
-    userName: '',
-    photoUrl: '',
-    age: 0,
-    dateOfBirth: '',
-    knownAs: '',
-    created: '',
-    lastActive: '',
-    gender: '',
-    introduction: '',
-    lookingFor: '',
-    interstes: undefined,
-    city: '',
-    country: '',
-    photos: []
-  };
+  member:Member | undefined;
   @ViewChild('editForm')editForm:NgForm|undefined;
 
   @HostListener('window:beforeunload',['$event']) unloadNotification($event:any){
@@ -58,12 +43,16 @@ export class MemberEditComponent implements OnInit {
   }
 
   editProfile(){
-    this.memberService.UpdateMember(this.member).subscribe({
+    this.memberService.UpdateMember(this.member!).subscribe({
       next:_=>{
         this.totstarService.success("data saved successfuly");
         this.editForm?.reset(this.member);
       }
     })
+  }
+
+  resetUserParams(){
+    return new UserParams(this.user);
   }
 
 }
