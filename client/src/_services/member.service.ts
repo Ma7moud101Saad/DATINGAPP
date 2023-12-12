@@ -45,7 +45,7 @@ export class MemberService {
   getMembers(userParams:UserParams):any{
     const response=this.memberCash.get(Object.values(userParams).join("-"));
     if(response) return of(response);
-    let params= this.getPagginationParamas(userParams);
+    let params= this.getPagginationHeaders(userParams.pageNumber,userParams.pageSize);
     params=params.append("minAge",userParams.minAge);
     params=params.append("maxAge",userParams.maxAge);
     params=params.append("gender",userParams.gender);
@@ -76,10 +76,10 @@ export class MemberService {
       ))
   }
 
-  getPagginationParamas(userParams:UserParams){
+  getPagginationHeaders(pageNumber:number,pageSize:number){
     let params=new HttpParams();
-      params=params.append("pageNumber",userParams.pageNumber);
-      params=params.append("pageSize",userParams.pageSize);
+      params=params.append("pageNumber",pageNumber);
+      params=params.append("pageSize",pageSize);
       return params;
   }
 
@@ -108,6 +108,20 @@ export class MemberService {
   deletePhoto(photoId:number){
     return this.http.delete(this.baseUrl+"users/delete-photo/"+photoId);
   }
+
+  addLike(userName:string){
+    return this.http.post(this.baseUrl+"likes/"+userName,{});
+  }
+  getUserLike(predicate:string,pageNumber:number,pageSize:number){
+    let params= this.getPagginationHeaders(pageNumber,pageSize);
+    params=params.append("predicate",predicate);
+    return this.getPaginatedResult<Member[]>(this.baseUrl + 'likes', params).pipe(
+      map(response=>{
+        return response;
+      })
+    );
+  }
+
   // getHttpOptions(){
   //   const userString=localStorage.getItem("user");
   //   if(!userString)return;
