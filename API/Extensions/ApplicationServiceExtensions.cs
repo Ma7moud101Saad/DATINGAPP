@@ -25,6 +25,7 @@ namespace API.Extensions
             services.AddScoped<IphotoService, PhotoService>();
             services.AddScoped<LogUserActivity>();
             services.AddScoped<ILikeRepository,LikeRepository>();
+            services.AddScoped<IMessageRepository,MessageRepository>();
             services.AddCors();
             return services;
         }

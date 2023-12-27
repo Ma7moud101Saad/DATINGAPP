@@ -3,6 +3,7 @@ using System;
 using API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace API.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20231214001917_onDeleteCascadeUserLike")]
+    partial class onDeleteCascadeUserLike
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -74,50 +77,6 @@ namespace API.Data.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("API.Entites.Message", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Content")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("DateRead")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<DateTime>("MessageSent")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<bool>("RecipientDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("RecipientId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("RecipientUserName")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("SenderDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("SenderId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("SenderUserName")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RecipientId");
-
-                    b.HasIndex("SenderId");
-
-                    b.ToTable("Message");
-                });
-
             modelBuilder.Entity("API.Entites.Photo", b =>
                 {
                     b.Property<int>("Id")
@@ -160,25 +119,6 @@ namespace API.Data.Migrations
                     b.ToTable("UserLike");
                 });
 
-            modelBuilder.Entity("API.Entites.Message", b =>
-                {
-                    b.HasOne("API.Entites.AppUser", "Recipient")
-                        .WithMany("MessagesReceived")
-                        .HasForeignKey("RecipientId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("API.Entites.AppUser", "Sender")
-                        .WithMany("MessagesSent")
-                        .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Recipient");
-
-                    b.Navigation("Sender");
-                });
-
             modelBuilder.Entity("API.Entites.Photo", b =>
                 {
                     b.HasOne("API.Entites.AppUser", "AppUser")
@@ -214,10 +154,6 @@ namespace API.Data.Migrations
                     b.Navigation("LikedByUsers");
 
                     b.Navigation("LikedUsers");
-
-                    b.Navigation("MessagesReceived");
-
-                    b.Navigation("MessagesSent");
 
                     b.Navigation("Photos");
                 });
