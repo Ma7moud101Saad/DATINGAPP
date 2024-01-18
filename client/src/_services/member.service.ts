@@ -17,12 +17,7 @@ export class MemberService {
   members:Member[]=[];
   paginationResult:PaginationResult<Member[]>=new PaginationResult<Member[]>();
   memberCash=new Map();
-  user:User ={
-    userName: '',
-    token: '',
-    photoUrl: '',
-    gender: ''
-  };
+  user:User ={}as User
   userParams:UserParams ={
     pageNumber: 0,
     pageSize: 0,

@@ -33,6 +33,8 @@ namespace API.Controllers
             _mapper = mapper;
             _photoService = photoService;
         }
+        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin"+","+"Member")]
         [HttpGet]
         public async Task<ActionResult<PagedList<MemberDto>>> GetUsers([FromQuery] UserParams userParams) {
             var user = await _userRepository.GetUserByNameAsync(User.GetUserName());
@@ -44,6 +46,7 @@ namespace API.Controllers
             Response.AddPaginationHeader(new PaginationHeader(users.PageNumber, users.PageSize,users.TotalCount,users.TotalPages));
            return Ok(users);
         }
+        [Authorize(Roles = "Member")]
         [HttpGet("{userName}")]
         public async Task<ActionResult<MemberDto>> GetUser(string userName)
         { return Ok(await _userRepository.GetMemberByNameAsync(userName));
