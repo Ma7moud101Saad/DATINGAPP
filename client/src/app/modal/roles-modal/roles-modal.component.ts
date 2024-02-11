@@ -19,8 +19,4 @@ export class RolesModalComponent implements OnInit {
    index !== -1 ?this.selectedRoles.splice(index,1):this.selectedRoles.push(role);
   }
 
-  editRoles(){
-    console.log("Edit")
-  }
-
 }

@@ -24,6 +24,12 @@ namespace API.Data
             _dataContext = dataContext;
             _mapper = mapper;
         }
+
+        public void AddGroup(Group group)
+        {
+            _dataContext.Group.Add(group);
+        }
+
         public  void AddMessage(Message message)
         {
            _dataContext.Message.AddAsync(message);
@@ -32,6 +38,18 @@ namespace API.Data
         public void DeleteMessage(Message message)
         {
             _dataContext.Message.Remove(message);
+        }
+
+        public async Task<Connection> GetConnection(string connectionId)
+        {
+            return await _dataContext.Connection.FindAsync(connectionId);
+        }
+
+        public async Task<Group> GetGroupForConnection(string connectionId)
+        {
+            return await _dataContext.Group.Include(x => x.connections).
+                Where(x => x.connections.Any(c => c.ConnectionId == connectionId)).
+                FirstOrDefaultAsync();
         }
 
         public async Task<Message> GetMessage(int id)
@@ -55,6 +73,13 @@ namespace API.Data
                 AsNoTracking(), messageParams.PageNumber, messageParams.PageSize);
         }
 
+        public async Task<Group> GetMessageGroup(string groupName)
+        {
+            return await _dataContext.Group
+           .Include(x => x.connections)
+           .FirstOrDefaultAsync(x => x.Name == groupName);
+        }
+
         public async Task<IEnumerable<MessageDto>> GetMessageThread(string currentUserName, string recipiantUserName)
         {
             var messages =await _dataContext.Message
@@ -67,11 +92,16 @@ namespace API.Data
             var unreadMessages = messages.Where(x => x.DateRead == null && x.RecipientUserName == currentUserName);
             foreach (var message in unreadMessages)
             {
-                message.DateRead = DateTime.Now;
+                message.DateRead = DateTime.UtcNow;
 
                 await _dataContext.SaveChangesAsync();
             }
             return _mapper.Map<IEnumerable<MessageDto>>(messages);
+        }
+
+        public void RemoveConnection(Connection connection)
+        {
+            _dataContext.Connection.Remove(connection);
         }
 
         public async Task<bool> SaveAllAsync()
